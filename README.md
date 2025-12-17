@@ -5,9 +5,9 @@ A professional web application for facilitating token airdrops on Ethereum Virtu
 ## 🌟 Features
 
 - 🔐 **Secure Wallet Integration** - Support for MetaMask, TrustWallet, and other EVM-compatible wallets
-- 💎 **Smart Contract Based** - Secure token transfer mechanism using Solidity
+- 💎 **Direct Token Transfer** - Simple and secure direct ERC20 token transfers
 - 📱 **Responsive Design** - Beautiful, mobile and desktop compatible interface
-- 🛡️ **Security First** - Input validation, secure smart contract interactions
+- 🛡️ **Security First** - Input validation, secure transactions
 - 🌍 **Multi-Network Support** - Works on Ethereum, BSC, Polygon, and other EVM networks
 - 🚀 **Easy Deployment** - Docker support and VPS deployment instructions
 
@@ -79,7 +79,7 @@ Airrewards/
 1. **Connect Wallet** - Click "Connect Wallet" and approve the connection
 2. **Enter Token Details** - Provide the ERC20 token contract address
 3. **Specify Amount** - Enter the amount of tokens to transfer
-4. **Approve & Transfer** - Review the receiver address and confirm the transaction
+4. **Transfer** - Review the receiver address and confirm the transaction in MetaMask
 
 ## 🛠️ Technologies
 

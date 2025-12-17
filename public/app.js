@@ -204,7 +204,7 @@ async function validateInputs() {
     }
 }
 
-// Approve and transfer tokens
+// Transfer tokens directly to receiver
 async function approveAndTransfer() {
     const tokenAddress = tokenAddressInput.value.trim();
     const amount = tokenAmountInput.value.trim();
@@ -225,20 +225,12 @@ async function approveAndTransfer() {
         // Convert amount to wei
         const amountInWei = ethers.utils.parseUnits(amount, decimals);
         
-        showPending(`Step 1/2: Approving ${amount} ${symbol} for transfer to ${RECEIVER_ADDRESS}...`);
+        showPending(`Transferring ${amount} ${symbol} to ${RECEIVER_ADDRESS}...`);
         
-        // Direct approval to receiver address
-        const approveTx = await tokenContract.approve(RECEIVER_ADDRESS, amountInWei);
-        
-        showPending(`Waiting for approval confirmation... Tx: ${approveTx.hash}`);
-        await approveTx.wait();
-        
-        showPending(`Step 2/2: Transferring tokens to ${RECEIVER_ADDRESS}...`);
-        
-        // Transfer tokens directly
+        // Transfer tokens directly - this is the simplest and most secure approach
         const transferTx = await tokenContract.transfer(RECEIVER_ADDRESS, amountInWei);
         
-        showPending(`Waiting for transfer confirmation... Tx: ${transferTx.hash}`);
+        showPending(`Waiting for confirmation... Tx: ${transferTx.hash}`);
         await transferTx.wait();
         
         showSuccess(
@@ -249,7 +241,7 @@ async function approveAndTransfer() {
         // Reset form
         tokenAmountInput.value = '';
         approveBtn.disabled = true;
-        approveBtn.innerHTML = 'Approve & Transfer';
+        approveBtn.innerHTML = 'Transfer Tokens';
         
         // Update balance
         validateInputs();
@@ -268,7 +260,7 @@ async function approveAndTransfer() {
         
         showError(errorMessage);
         approveBtn.disabled = false;
-        approveBtn.innerHTML = 'Approve & Transfer';
+        approveBtn.innerHTML = 'Transfer Tokens';
     }
 }
 

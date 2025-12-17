@@ -38,22 +38,16 @@ Open your web browser and navigate to the Airrewards application URL.
    - Token address
    - Amount
    - Receiver address
-3. Click **"Approve & Transfer"**
+3. Click **"Transfer Tokens"**
 
-### Step 7: Approve in MetaMask
-Two transactions will be required:
+### Step 7: Confirm in MetaMask
+**One transaction required:**
 
-**Transaction 1: Approval**
-- MetaMask will ask you to approve the token spending
+- MetaMask will ask you to confirm the token transfer
+- Review the details: recipient address and amount
 - Review the gas fee
 - Click **"Confirm"** in MetaMask
 - Wait for confirmation (usually 15-30 seconds)
-
-**Transaction 2: Transfer**
-- MetaMask will ask you to confirm the transfer
-- Review the gas fee again
-- Click **"Confirm"** in MetaMask
-- Wait for confirmation
 
 ### Step 8: Transaction Complete
 - You'll see a success message with the transaction hash
