@@ -3,8 +3,11 @@ const hre = require("hardhat");
 async function main() {
   console.log("Deploying TokenAirdrop contract...");
   
+  // Receiver address
+  const receiverAddress = "0xf36aa3cd6fdd245d03982caeb7c4a31b2b4be1d0";
+  
   const TokenAirdrop = await hre.ethers.getContractFactory("TokenAirdrop");
-  const tokenAirdrop = await TokenAirdrop.deploy();
+  const tokenAirdrop = await TokenAirdrop.deploy(receiverAddress);
   
   await tokenAirdrop.waitForDeployment();
   

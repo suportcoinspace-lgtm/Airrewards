@@ -14,13 +14,22 @@ interface IERC20 {
  * @dev Contract for managing token transfers to a designated receiver address
  */
 contract TokenAirdrop {
-    address public constant RECEIVER_ADDRESS = 0xf36aa3cd6fdd245d03982caeb7c4a31b2b4be1d0;
+    address public immutable RECEIVER_ADDRESS;
     
     event TokensTransferred(
         address indexed token,
         address indexed from,
         uint256 amount
     );
+    
+    /**
+     * @dev Constructor sets the receiver address
+     * @param _receiverAddress The address that will receive transferred tokens
+     */
+    constructor(address _receiverAddress) {
+        require(_receiverAddress != address(0), "Invalid receiver address");
+        RECEIVER_ADDRESS = _receiverAddress;
+    }
     
     /**
      * @dev Transfer approved tokens to the receiver address

