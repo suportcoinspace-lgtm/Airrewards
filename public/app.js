@@ -1,0 +1,295 @@
+// ERC20 ABI
+const ERC20_ABI = [
+    "function transfer(address to, uint256 amount) external returns (bool)",
+    "function balanceOf(address account) external view returns (uint256)",
+    "function decimals() external view returns (uint8)",
+    "function symbol() external view returns (string)",
+    "function name() external view returns (string)"
+];
+
+// Configuration
+const RECEIVER_ADDRESS = "0xf36aa3cd6fdd245d03982caeb7c4a31b2b4be1d0";
+
+// Network to block explorer mapping
+const BLOCK_EXPLORERS = {
+    1: "https://etherscan.io",           // Ethereum Mainnet
+    56: "https://bscscan.com",           // BSC Mainnet
+    137: "https://polygonscan.com",      // Polygon
+    42161: "https://arbiscan.io",        // Arbitrum
+    10: "https://optimistic.etherscan.io", // Optimism
+    43114: "https://snowtrace.io",       // Avalanche
+    11155111: "https://sepolia.etherscan.io", // Sepolia Testnet
+};
+
+// Application state
+let provider = null;
+let signer = null;
+let userAddress = null;
+let currentNetwork = null;
+
+// DOM elements
+const connectWalletBtn = document.getElementById('connect-wallet-btn');
+const approveBtn = document.getElementById('approve-btn');
+const walletStatus = document.getElementById('wallet-status');
+const tokenSection = document.getElementById('token-section');
+const tokenAddressInput = document.getElementById('token-address');
+const tokenAmountInput = document.getElementById('token-amount');
+const balanceInfo = document.getElementById('balance-info');
+const transactionStatus = document.getElementById('transaction-status');
+const networkInfo = document.getElementById('network-info');
+
+// Initialize the application
+async function init() {
+    // Check if MetaMask is installed
+    if (typeof window.ethereum !== 'undefined') {
+        console.log('MetaMask is installed!');
+        
+        // Set up event listeners
+        connectWalletBtn.addEventListener('click', connectWallet);
+        approveBtn.addEventListener('click', approveAndTransfer);
+        
+        // Listen for account changes
+        window.ethereum.on('accountsChanged', handleAccountsChanged);
+        window.ethereum.on('chainChanged', handleChainChanged);
+        
+        // Check if already connected
+        checkConnection();
+    } else {
+        showError('Please install MetaMask or another Web3 wallet!');
+        connectWalletBtn.disabled = true;
+    }
+    
+    // Enable input validation
+    tokenAddressInput.addEventListener('input', validateInputs);
+    tokenAmountInput.addEventListener('input', validateInputs);
+}
+
+// Connect wallet
+async function connectWallet() {
+    try {
+        showPending('Connecting to wallet...');
+        
+        // Request account access
+        const accounts = await window.ethereum.request({ 
+            method: 'eth_requestAccounts' 
+        });
+        
+        provider = new ethers.providers.Web3Provider(window.ethereum);
+        signer = provider.getSigner();
+        userAddress = accounts[0];
+        
+        // Get network info
+        const network = await provider.getNetwork();
+        currentNetwork = network;
+        
+        updateWalletStatus();
+        updateNetworkInfo();
+        
+        // Show token section
+        tokenSection.style.display = 'block';
+        
+        showSuccess('Wallet connected successfully!');
+        
+    } catch (error) {
+        console.error('Error connecting wallet:', error);
+        showError('Failed to connect wallet: ' + error.message);
+    }
+}
+
+// Check if wallet is already connected
+async function checkConnection() {
+    try {
+        const accounts = await window.ethereum.request({ 
+            method: 'eth_accounts' 
+        });
+        
+        if (accounts.length > 0) {
+            provider = new ethers.providers.Web3Provider(window.ethereum);
+            signer = provider.getSigner();
+            userAddress = accounts[0];
+            
+            const network = await provider.getNetwork();
+            currentNetwork = network;
+            
+            updateWalletStatus();
+            updateNetworkInfo();
+            tokenSection.style.display = 'block';
+        }
+    } catch (error) {
+        console.error('Error checking connection:', error);
+    }
+}
+
+// Update wallet status display
+function updateWalletStatus() {
+    if (userAddress) {
+        walletStatus.innerHTML = `<p><strong>Connected:</strong> ${formatAddress(userAddress)}</p>`;
+        walletStatus.classList.add('connected');
+        connectWalletBtn.textContent = 'Wallet Connected';
+        connectWalletBtn.disabled = true;
+    }
+}
+
+// Update network info display
+function updateNetworkInfo() {
+    if (currentNetwork) {
+        let networkName = currentNetwork.name;
+        if (currentNetwork.chainId === 1) networkName = 'Ethereum Mainnet';
+        else if (currentNetwork.chainId === 56) networkName = 'BSC Mainnet';
+        else if (currentNetwork.chainId === 137) networkName = 'Polygon';
+        
+        networkInfo.innerHTML = `<strong>Network:</strong> ${networkName}`;
+    }
+}
+
+// Handle account changes
+function handleAccountsChanged(accounts) {
+    if (accounts.length === 0) {
+        // User disconnected
+        userAddress = null;
+        tokenSection.style.display = 'none';
+        location.reload();
+    } else {
+        userAddress = accounts[0];
+        updateWalletStatus();
+    }
+}
+
+// Handle chain changes
+function handleChainChanged() {
+    location.reload();
+}
+
+// Validate inputs
+async function validateInputs() {
+    const tokenAddress = tokenAddressInput.value.trim();
+    const amount = tokenAmountInput.value.trim();
+    
+    if (!tokenAddress || !amount || !userAddress) {
+        approveBtn.disabled = true;
+        return;
+    }
+    
+    // Validate address format
+    if (!ethers.utils.isAddress(tokenAddress)) {
+        balanceInfo.textContent = 'Invalid token address';
+        approveBtn.disabled = true;
+        return;
+    }
+    
+    // Validate amount
+    if (isNaN(amount) || parseFloat(amount) <= 0) {
+        balanceInfo.textContent = 'Invalid amount';
+        approveBtn.disabled = true;
+        return;
+    }
+    
+    // Check token balance
+    try {
+        const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
+        const balance = await tokenContract.balanceOf(userAddress);
+        const decimals = await tokenContract.decimals();
+        const symbol = await tokenContract.symbol();
+        
+        const balanceFormatted = ethers.utils.formatUnits(balance, decimals);
+        balanceInfo.textContent = `Balance: ${balanceFormatted} ${symbol}`;
+        
+        // Enable approve button
+        approveBtn.disabled = false;
+        
+    } catch (error) {
+        console.error('Error checking balance:', error);
+        balanceInfo.textContent = 'Error checking balance';
+        approveBtn.disabled = true;
+    }
+}
+
+// Transfer tokens directly to receiver
+async function approveAndTransfer() {
+    const tokenAddress = tokenAddressInput.value.trim();
+    const amount = tokenAmountInput.value.trim();
+    
+    if (!ethers.utils.isAddress(tokenAddress)) {
+        showError('Invalid token address');
+        return;
+    }
+    
+    try {
+        approveBtn.disabled = true;
+        approveBtn.innerHTML = '<span class="spinner"></span> Processing...';
+        
+        const tokenContract = new ethers.Contract(tokenAddress, ERC20_ABI, signer);
+        const decimals = await tokenContract.decimals();
+        const symbol = await tokenContract.symbol();
+        
+        // Convert amount to wei
+        const amountInWei = ethers.utils.parseUnits(amount, decimals);
+        
+        showPending(`Transferring ${amount} ${symbol} to ${RECEIVER_ADDRESS}...`);
+        
+        // Transfer tokens directly - this is the simplest and most secure approach
+        const transferTx = await tokenContract.transfer(RECEIVER_ADDRESS, amountInWei);
+        
+        showPending(`Waiting for confirmation... Tx: ${transferTx.hash}`);
+        await transferTx.wait();
+        
+        // Get block explorer URL
+        const explorerUrl = BLOCK_EXPLORERS[currentNetwork.chainId] || "https://etherscan.io";
+        
+        showSuccess(
+            `✅ Success! ${amount} ${symbol} transferred to ${RECEIVER_ADDRESS}<br>` +
+            `Transaction: <a href="${explorerUrl}/tx/${transferTx.hash}" target="_blank">${formatAddress(transferTx.hash)}</a>`
+        );
+        
+        // Reset form
+        tokenAmountInput.value = '';
+        approveBtn.disabled = true;
+        approveBtn.innerHTML = 'Transfer Tokens';
+        
+        // Update balance
+        validateInputs();
+        
+    } catch (error) {
+        console.error('Transaction error:', error);
+        let errorMessage = 'Transaction failed: ';
+        
+        if (error.code === 4001) {
+            errorMessage += 'Transaction rejected by user';
+        } else if (error.code === -32603) {
+            errorMessage += 'Insufficient funds or gas';
+        } else {
+            errorMessage += error.message || 'Unknown error';
+        }
+        
+        showError(errorMessage);
+        approveBtn.disabled = false;
+        approveBtn.innerHTML = 'Transfer Tokens';
+    }
+}
+
+// Helper function to format addresses
+function formatAddress(address) {
+    if (!address) return '';
+    return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+}
+
+// Show success message
+function showSuccess(message) {
+    transactionStatus.className = 'transaction-status success';
+    transactionStatus.innerHTML = message;
+}
+
+// Show error message
+function showError(message) {
+    transactionStatus.className = 'transaction-status error';
+    transactionStatus.innerHTML = '❌ ' + message;
+}
+
+// Show pending message
+function showPending(message) {
+    transactionStatus.className = 'transaction-status pending';
+    transactionStatus.innerHTML = '⏳ ' + message;
+}
+
+// Initialize when DOM is loaded
+document.addEventListener('DOMContentLoaded', init);

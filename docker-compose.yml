@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  airrewards:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - PORT=3000
+      - RECEIVER_ADDRESS=0xf36aa3cd6fdd245d03982caeb7c4a31b2b4be1d0
+    restart: unless-stopped
+    volumes:
+      - ./public:/app/public:ro
+    networks:
+      - airrewards-network
+
+networks:
+  airrewards-network:
+    driver: bridge
