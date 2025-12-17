@@ -7,6 +7,9 @@ const PORT = process.env.PORT || 3000;
 // Serve static files from public directory
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Serve Web3.js from node_modules
+app.use('/lib', express.static(path.join(__dirname, 'node_modules/web3/dist')));
+
 // Main route
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
