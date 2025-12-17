@@ -211,6 +211,10 @@ server {
     listen 80;
     server_name your-domain.com;
 
+    # Rate limiting zone
+    limit_req_zone $binary_remote_addr zone=general:10m rate=10r/s;
+    limit_req zone=general burst=20 nodelay;
+
     location / {
         proxy_pass http://localhost:3000;
         proxy_http_version 1.1;

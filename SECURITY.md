@@ -108,6 +108,7 @@ If you discover a security vulnerability, please report it responsibly:
 1. **Direct Token Transfer**: The application uses direct token approval and transfer, which requires users to approve the receiver address
 2. **Browser Dependency**: Requires a Web3-enabled browser or extension
 3. **Network Dependency**: Requires connection to Ethereum network
+4. **Rate Limiting**: For production deployments, consider implementing rate limiting using a reverse proxy (e.g., Nginx) or middleware packages like `express-rate-limit` to prevent abuse
 
 ## Security Considerations for Token Transfers
 
